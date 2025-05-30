@@ -1,0 +1,263 @@
+<!-- src/app/components/dashboard/service-requests/view-service-request/view-service-request.component.html -->
+<div class="container">
+  <div class="header">
+    <button class="btn btn-back" (click)="goBack()">
+      <fa-icon [icon]="faArrowLeft"></fa-icon> {{ 'VIEW.BACK' | translate }}
+    </button>
+    <h2>{{ 'VIEW.SERVICE_REQUEST_DETAILS' | translate }}</h2>
+    <div class="actions">
+      <button class="btn btn-edit" (click)="editRequest()">
+        <fa-icon [icon]="faEdit"></fa-icon> {{ 'VIEW.EDIT' | translate }}
+      </button>
+      <div class="print-dropdown">
+        <button class="btn btn-print" (click)="togglePrintMenu($event)">
+          <fa-icon [icon]="faPrint"></fa-icon> {{ 'VIEW.PRINT' | translate }}
+        </button>
+        <div class="print-menu" *ngIf="showPrintMenu">
+          <button class="print-option" (click)="printCustomerCard()">
+            <fa-icon [icon]="faIdCard"></fa-icon> {{ 'VIEW.CUSTOMER_CARD' | translate }}
+          </button>
+          <button class="print-option" (click)="printDeviceSticker()">
+            <fa-icon [icon]="faTag"></fa-icon> {{ 'VIEW.DEVICE_STICKER' | translate }}
+          </button>
+          <button class="print-option" (click)="printRequestSummary()">
+            <fa-icon [icon]="faFileAlt"></fa-icon> {{ 'VIEW.REQUEST_REPORT' | translate }}
+          </button>
+          <button class="print-option" (click)="generatePdf()">
+            <fa-icon [icon]="faFilePdf"></fa-icon> {{ 'VIEW.CREATE_PDF' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>{{ 'VIEW.LOADING_REQUEST_DATA' | translate }}</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <fa-icon [icon]="faExclamationTriangle"></fa-icon>
+    <span>{{ error | translate }}</span>
+  </div>
+
+  <div *ngIf="!isLoading && !error && serviceRequest" class="request-details">
+    <div class="request-header">
+      <div class="request-id">
+        <span class="label">{{ 'VIEW.REQUEST_NUMBER' | translate }}</span>
+        <span class="value">#{{ serviceRequest.requestId }}</span>
+      </div>
+      <div class="request-status">
+        <span class="status-badge" [class.pending]="serviceRequest.status === 'قيد الانتظار'"
+          [class.in-progress]="serviceRequest.status === 'قيد التصليح'"
+          [class.completed]="serviceRequest.status === 'مكتمل'"
+          [class.cancelled]="serviceRequest.status === 'ملغى'">
+          {{ getStatusTranslationKey(serviceRequest.status) | translate }}
+        </span>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-section customer-section">
+        <h3>
+          <fa-icon [icon]="faUser"></fa-icon>
+          <span>{{ 'VIEW.CUSTOMER_INFO' | translate }}</span>
+        </h3>
+        <div class="detail-content">
+          <div class="detail-group">
+            <label>{{ 'VIEW.CUSTOMER_NAME' | translate }}:</label>
+            <span>{{ serviceRequest.customer?.name ?? ('VIEW.UNKNOWN' | translate) }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.ADDRESS' | translate }}:</label>
+            <span>{{ serviceRequest.customer?.address ?? ('VIEW.UNKNOWN' | translate) }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.PHONE_NUMBER' | translate }}:</label>
+            <span>{{ serviceRequest.customer?.phone ?? ('VIEW.UNKNOWN' | translate) }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.REGISTRATION_DATE' | translate }}:</label>
+            <span>{{ formatDate(serviceRequest.customer?.registrationDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section devices-section">
+        <h3>
+          <fa-icon [icon]="faLaptop"></fa-icon>
+          <span>{{ 'VIEW.DEVICE_INFO' | translate }}</span>
+        </h3>
+        <div class="detail-content">
+          <div *ngIf="serviceRequest.devices && serviceRequest.devices.length > 0; else noDevices" class="devices-container">
+            <div *ngFor="let deviceRequest of serviceRequest.devices; let i = index" class="device-item">
+              <h4>{{ 'FORM.DEVICE' | translate }} {{ i + 1 }}</h4>
+              <div class="device-details">
+                <div class="detail-group">
+                  <label>{{ 'VIEW.DEVICE_TYPE' | translate }}:</label>
+                  <span>
+                    {{ getDeviceTypeTranslationKey(deviceRequest.device?.deviceType) | translate }}
+                    <span *ngIf="!isKnownDeviceType(deviceRequest.device?.deviceType)" class="original-device-type">
+                      ({{ deviceRequest.device?.deviceType ?? ('VIEW.UNKNOWN' | translate) }})
+                    </span>
+                  </span>
+                </div>
+                <div class="detail-group">
+                  <label>{{ 'VIEW.MODEL' | translate }}:</label>
+                  <span>{{ deviceRequest.device?.model ?? ('VIEW.UNKNOWN' | translate) }}</span>
+                </div>
+                <div class="detail-group">
+                  <label>{{ 'VIEW.PROMISED_DELIVERY_DATE' | translate }}:</label>
+                  <span>{{ deviceRequest.promisedDeliveryDate ? formatDate(deviceRequest.promisedDeliveryDate) : ('VIEW.NOT_SPECIFIED' | translate) }}</span>
+                </div>
+                <div class="detail-group">
+                  <label>{{ 'VIEW.ACTUAL_DELIVERY_DATE' | translate }}:</label>
+                  <span>{{ deviceRequest.actualDeliveryDate ? formatDate(deviceRequest.actualDeliveryDate) : ('VIEW.NOT_SPECIFIED' | translate) }}</span>
+                </div>
+                <div class="detail-group">
+                  <label>{{ 'VIEW.MAINTENANCE_COST' | translate }}:</label>
+                  <span>{{ deviceRequest.maintenanceCost | currency:'SAR ':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="detail-group">
+                  <label>{{ 'VIEW.INSPECTION_COST' | translate }}:</label>
+                  <span>{{ deviceRequest.inspectionCost | currency:'SAR ':'symbol':'1.2-2' }}</span>
+                </div>
+                <div *ngIf="deviceRequest.missingParts" class="detail-group missing-parts-group">
+                  <label>{{ 'VIEW.MISSING_PARTS' | translate }}:</label>
+                  <span>{{ deviceRequest.missingParts }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noDevices>
+            <div class="no-devices">{{ 'SERVICE_REQUESTS.NO_DEVICES' | translate }}</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="detail-section request-info-section">
+        <h3>
+          <fa-icon [icon]="faClipboardList"></fa-icon>
+          <span>{{ 'VIEW.REQUEST_INFO' | translate }}</span>
+        </h3>
+        <div class="detail-content">
+          <div class="detail-group">
+            <label>{{ 'VIEW.RECEPTIONIST' | translate }}:</label>
+            <span>{{ serviceRequest.receptionist ?? ('VIEW.UNKNOWN' | translate) }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.MAINTENANCE_WORKSHOP' | translate }}:</label>
+            <span>{{ serviceRequest.maintenanceWorkshop ?? ('VIEW.UNKNOWN' | translate) }}</span>
+          </div>
+          <div class="date-container">
+            <div class="detail-group">
+              <label>{{ 'VIEW.REQUEST_DATE' | translate }}:</label>
+              <span>{{ formatDate(serviceRequest.requestDate) }}</span>
+            </div>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.CONFIRMATION_STATUS' | translate }}:</label>
+            <span class="status-badge">{{ getConfirmationStatusTranslationKey(serviceRequest.customerConfirmationStatus) | translate }}</span>
+          </div>
+          <div class="detail-group sms-group">
+            <label>{{ 'VIEW.SEND_SMS' | translate }}:</label>
+            <span class="sms-badge" [class.sms-sent]="serviceRequest.smSsent" [class.sms-not-sent]="!serviceRequest.smSsent">
+              <fa-icon [icon]="serviceRequest.smSsent ? faCheckCircle : faTimesCircle"></fa-icon>
+              {{ serviceRequest.smSsent ? ('VIEW.YES' | translate) : ('VIEW.NO' | translate) }}
+            </span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.TAX_RATE' | translate }}:</label>
+            <span>{{ serviceRequest.taxRate | percent:'1.0-2' }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.TAX_AMOUNT' | translate }}:</label>
+            <span>{{ serviceRequest.taxAmount | currency:'SAR ':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="detail-group">
+            <label>{{ 'VIEW.TOTAL_COST' | translate }}:</label>
+            <span class="cost">{{ serviceRequest.totalCost | currency:'SAR ':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section notes-section">
+        <h3>
+          <fa-icon [icon]="faStickyNote"></fa-icon>
+          <span>{{ 'VIEW.NOTES' | translate }}</span>
+        </h3>
+        <div class="notes">
+          {{ serviceRequest.notes ?? ('VIEW.NO_NOTES' | translate) }}
+        </div>
+      </div>
+
+      <div *ngIf="getAllUsedParts().length > 0" class="detail-section parts-section">
+        <h3>
+          <fa-icon [icon]="faTools"></fa-icon>
+          <span>{{ 'VIEW.USED_PARTS' | translate }}</span>
+        </h3>
+        <div class="table-responsive">
+          <table class="parts-table">
+            <thead>
+              <tr>
+                <th>{{ 'VIEW.PART_NAME' | translate }}</th>
+                <th>{{ 'VIEW.PART_NUMBER' | translate }}</th>
+                <th>{{ 'VIEW.QUANTITY' | translate }}</th>
+                <th>{{ 'VIEW.UNIT_PRICE' | translate }}</th>
+                <th>{{ 'VIEW.TOTAL' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let part of getAllUsedParts()">
+                <td>{{ part.partName }}</td>
+                <td>{{ part.partNumber }}</td>
+                <td>{{ part.quantity }}</td>
+                <td>{{ part.unitPrice | currency:'SAR ':'symbol':'1.2-2' }}</td>
+                <td>{{ part.totalPrice | currency:'SAR ':'symbol':'1.2-2' }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="total-label">{{ 'VIEW.TOTAL_PARTS' | translate }}</td>
+                <td class="total-value">{{ getTotalPartsPrice() | currency:'SAR ':'symbol':'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div *ngIf="serviceRequest.smsNotifications && serviceRequest.smsNotifications.length > 0" class="detail-section sms-section">
+        <h3>
+          <fa-icon [icon]="faCheckCircle"></fa-icon>
+          <span>{{ 'VIEW.SMS_NOTIFICATIONS' | translate }}</span>
+        </h3>
+        <div class="table-responsive">
+          <table class="sms-table">
+            <thead>
+              <tr>
+                <th>{{ 'VIEW.DATE' | translate }}</th>
+                <th>{{ 'VIEW.PHONE_NUMBER' | translate }}</th>
+                <th>{{ 'VIEW.MESSAGE' | translate }}</th>
+                <th>{{ 'VIEW.STATUS' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let notification of serviceRequest.smsNotifications">
+                <td>{{ formatDateTime(notification.sentDate) }}</td>
+                <td>{{ notification.phoneNumber }}</td>
+                <td>{{ notification.message }}</td>
+                <td>
+                  <span class="status-badge" [class.completed]="notification.status === 'تم التسليم'"
+                    [class.pending]="notification.status === 'قيد الإرسال'"
+                    [class.cancelled]="notification.status === 'فشل'">
+                    {{ getSmsStatusTranslationKey(notification.status) | translate }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
