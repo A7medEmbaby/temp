@@ -1,0 +1,637 @@
+// src/app/components/dashboard/service-requests/list-service-requests/list-service-requests.component.scss
+
+// Variables
+$primary-color: #3b82f6;
+$primary-dark: #2563eb;
+$primary-light: #dbeafe;
+$secondary-color: #f3f4f6;
+$text-dark: #1f2937;
+$text-muted: #6b7280;
+$border-color: #e5e7eb;
+$white: #ffffff;
+$error: #ef4444;
+$success: #10b981;
+$warning: #f59e0b;
+$info: #3b82f6;
+
+$status-pending-bg: #fff7ed;
+$status-pending-text: #c2410c;
+$status-progress-bg: #eff6ff;
+$status-progress-text: #1d4ed8;
+$status-completed-bg: #ecfdf5;
+$status-completed-text: #047857;
+$status-cancelled-bg: #fef2f2;
+$status-cancelled-text: #b91c1c;
+
+$confirmation-pending-bg: #fffbeb;
+$confirmation-pending-text: #b45309;
+$confirmation-confirmed-bg: #ecfdf5;
+$confirmation-confirmed-text: #047857;
+$confirmation-rejected-bg: #fef2f2;
+$confirmation-rejected-text: #b91c1c;
+
+$border-radius: 8px;
+$transition: all 0.3s ease;
+$box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$box-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+// Global Styles
+.container {
+  padding: 2.5rem;
+  direction: rtl;
+  max-width: 1400px;
+  margin: 0 auto;
+  color: $text-dark;
+  font-family: 'Tajawal', sans-serif;
+}
+
+// Header Section
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  &-title {
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: $text-dark;
+    }
+
+    .subtitle {
+      color: $text-muted;
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+}
+
+// Button Styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: $border-radius;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  font-family: 'Tajawal', sans-serif;
+
+  &-primary {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover {
+      background-color: $primary-dark;
+      transform: translateY(-2px);
+      box-shadow: $box-shadow;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &-outline {
+    background-color: transparent;
+    color: $primary-color;
+    border: 1px solid currentColor;
+
+    &:hover {
+      background-color: $primary-light;
+    }
+  }
+}
+
+// Card Container
+.card {
+  background-color: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  overflow: hidden;
+  margin-bottom: 2rem;
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid $border-color;
+    background-color: $secondary-color;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+// Search and Filters
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+
+  .search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border-radius: $border-radius;
+    border: 1px solid $border-color;
+    background-color: $white;
+    font-family: 'Tajawal', sans-serif;
+    transition: $transition;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+}
+
+.filters-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  label {
+    color: $text-dark;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  select {
+    padding: 0.75rem 1rem;
+    border-radius: $border-radius;
+    border: 1px solid $border-color;
+    background-color: $white;
+    font-family: 'Tajawal', sans-serif;
+    color: $text-dark;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: $transition;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+  }
+}
+
+// Loading State
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+
+  .spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid rgba($primary-color, 0.2);
+    border-top: 3px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    color: $text-muted;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+// Error State
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+  text-align: center;
+
+  .error-icon {
+    font-size: 2.5rem;
+    color: $error;
+  }
+
+  p {
+    color: $text-dark;
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+// No Results State
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+  text-align: center;
+
+  .no-results-icon {
+    font-size: 2.5rem;
+    color: $text-muted;
+  }
+
+  p {
+    color: $text-dark;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Table Styles
+.table-responsive {
+  overflow-x: auto;
+  padding: 0.5rem;
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th, td {
+    padding: 1rem;
+    text-align: right;
+  }
+
+  th {
+    color: $text-dark;
+    font-weight: 600;
+    border-bottom: 2px solid $border-color;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  td {
+    border-bottom: 1px solid $border-color;
+    font-size: 0.95rem;
+    vertical-align: middle;
+  }
+
+  tbody {
+    tr {
+      transition: $transition;
+
+      &:hover {
+        background-color: rgba($secondary-color, 0.5);
+      }
+
+      &.even {
+        background-color: rgba($secondary-color, 0.2);
+      }
+    }
+  }
+
+  .request-id {
+    font-weight: 600;
+    color: $primary-dark;
+  }
+
+  .customer-info {
+    display: flex;
+    flex-direction: column;
+
+    .customer-name {
+      font-weight: 500;
+    }
+  }
+
+  // Devices Info Styles
+  .devices-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .primary-device {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+
+      .device-type {
+        font-weight: 500;
+        color: $text-dark;
+
+        .original-device-type {
+          font-weight: 400;
+          color: $text-muted;
+          font-size: 0.85rem;
+        }
+      }
+
+      .device-model {
+        font-size: 0.85rem;
+        color: $text-muted;
+        font-weight: 400;
+      }
+    }
+
+    .device-count {
+      margin-top: 0.25rem;
+
+      .count-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+        border: 1px solid rgba($primary-color, 0.2);
+      }
+    }
+
+    .no-devices {
+      .no-device-text {
+        color: $text-muted;
+        font-style: italic;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+
+    &.pending {
+      background: $status-pending-bg;
+      color: $status-pending-text;
+    }
+
+    &.in-progress {
+      background: $status-progress-bg;
+      color: $status-progress-text;
+    }
+
+    &.completed {
+      background: $status-completed-bg;
+      color: $status-completed-text;
+    }
+
+    &.cancelled {
+      background: $status-cancelled-bg;
+      color: $status-cancelled-text;
+    }
+  }
+
+  .confirmation-status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+
+    &.pending {
+      background: $confirmation-pending-bg;
+      color: $confirmation-pending-text;
+    }
+
+    &.confirmed {
+      background: $confirmation-confirmed-bg;
+      color: $confirmation-confirmed-text;
+    }
+
+    &.rejected {
+      background: $confirmation-rejected-bg;
+      color: $confirmation-rejected-text;
+    }
+  }
+
+  // Cost column styles
+  .cost-breakdown {
+    margin-top: 0.25rem;
+
+    .maintenance-cost {
+      color: $text-muted;
+      font-size: 0.8rem;
+      font-weight: 400;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .btn-action {
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition;
+    color: $text-dark;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &.btn-view {
+      background-color: rgba($info, 0.1);
+      color: $info;
+
+      &:hover {
+        background-color: $info;
+        color: $white;
+      }
+    }
+
+    &.btn-edit {
+      background-color: rgba($warning, 0.1);
+      color: $warning;
+
+      &:hover {
+        background-color: $warning;
+        color: $white;
+      }
+    }
+
+    &.btn-delete {
+      background-color: rgba($error, 0.1);
+      color: $error;
+
+      &:hover {
+        background-color: $error;
+        color: $white;
+      }
+    }
+  }
+}
+
+// Animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .requests-table {
+    th, td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .status-badge, .confirmation-status-badge {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .devices-info {
+      .primary-device {
+        .device-type {
+          font-size: 0.9rem;
+        }
+
+        .device-model {
+          font-size: 0.8rem;
+        }
+      }
+
+      .device-count .count-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .search-box {
+      max-width: 100%;
+      width: 100%;
+    }
+    
+    .filters-container {
+      width: 100%;
+      margin-top: 1rem;
+      justify-content: space-between;
+    }
+  }
+
+  .requests-table {
+    .devices-info {
+      max-width: 200px;
+
+      .primary-device {
+        .device-type {
+          font-size: 0.85rem;
+        }
+
+        .device-model {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .status-filter {
+      width: 100%;
+      
+      select {
+        flex: 1;
+      }
+    }
+  }
+
+  .requests-table {
+    .devices-info {
+      max-width: 150px;
+
+      .primary-device {
+        .device-type .original-device-type {
+          display: none; // Hide original device type on mobile for space
+        }
+      }
+
+      .device-count .count-badge {
+        font-size: 0.65rem;
+      }
+    }
+
+    .cost-breakdown {
+      display: none; // Hide cost breakdown on mobile for space
+    }
+  }
+
+  // Make table more mobile-friendly
+  .table-responsive {
+    .requests-table {
+      th, td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+      }
+
+      .actions {
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .btn-action {
+          width: 1.75rem;
+          height: 1.75rem;
+        }
+      }
+    }
+  }
+}

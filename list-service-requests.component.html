@@ -1,0 +1,219 @@
+<div class="container">
+  <div class="header">
+    <div class="header-title">
+      <h2>{{ "SERVICE_REQUESTS.TITLE" | translate }}</h2>
+      <p class="subtitle">{{ "SERVICE_REQUESTS.SUBTITLE" | translate }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="addRequest()">
+      <fa-icon [icon]="faPlus"></fa-icon>
+      {{ "SERVICE_REQUESTS.ADD_NEW" | translate }}
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="search-box">
+        <fa-icon [icon]="faSearch" class="search-icon"></fa-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="filterRequests()"
+          placeholder="{{ 'SERVICE_REQUESTS.SEARCH_PLACEHOLDER' | translate }}"
+        />
+      </div>
+
+      <div class="filters-container">
+        <div class="status-filter">
+          <label>{{ "SERVICE_REQUESTS.STATUS" | translate }}:</label>
+          <select [(ngModel)]="statusFilter" (change)="filterRequests()">
+            <option value="">
+              {{ "SERVICE_REQUESTS.ALL_STATUSES" | translate }}
+            </option>
+            <option value="قيد الانتظار">
+              {{ "SERVICE_REQUESTS.STATUS_PENDING" | translate }}
+            </option>
+            <option value="قيد التصليح">
+              {{ "SERVICE_REQUESTS.STATUS_IN_PROGRESS" | translate }}
+            </option>
+            <option value="مكتمل">
+              {{ "SERVICE_REQUESTS.STATUS_COMPLETED" | translate }}
+            </option>
+            <option value="ملغى">
+              {{ "SERVICE_REQUESTS.STATUS_CANCELLED" | translate }}
+            </option>
+          </select>
+        </div>
+
+        <div class="status-filter">
+          <label
+            >{{ "SERVICE_REQUESTS.CONFIRMATION_STATUS" | translate }}:</label
+          >
+          <select
+            [(ngModel)]="confirmationStatusFilter"
+            (change)="filterRequests()"
+          >
+            <option value="">
+              {{ "SERVICE_REQUESTS.ALL_STATUSES" | translate }}
+            </option>
+            <option value="قيد الانتظار">
+              {{ "SERVICE_REQUESTS.STATUS_PENDING" | translate }}
+            </option>
+            <option value="تم التأكيد">
+              {{ "SERVICE_REQUESTS.STATUS_CONFIRMED" | translate }}
+            </option>
+            <option value="تم الرفض">
+              {{ "SERVICE_REQUESTS.STATUS_REJECTED" | translate }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <p>{{ "SERVICE_REQUESTS.LOADING" | translate }}</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+      <fa-icon [icon]="faExclamationTriangle" class="error-icon"></fa-icon>
+      <p>{{ error }}</p>
+      <button class="btn btn-outline" (click)="loadAllRequests()">
+        {{ "SERVICE_REQUESTS.RETRY" | translate }}
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !error">
+      <div *ngIf="filteredRequests.length === 0" class="no-results">
+        <fa-icon [icon]="faSearchMinus" class="no-results-icon"></fa-icon>
+        <p>{{ "SERVICE_REQUESTS.NO_RESULTS" | translate }}</p>
+        <button class="btn btn-outline" (click)="addRequest()">
+          {{ "SERVICE_REQUESTS.ADD_NEW" | translate }}
+        </button>
+      </div>
+
+      <div class="table-responsive" *ngIf="filteredRequests.length > 0">
+        <table class="requests-table">
+          <thead>
+            <tr>
+              <th>{{ "SERVICE_REQUESTS.REQUEST_ID" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.CUSTOMER" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.PHONE" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.DEVICES" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.REQUEST_DATE" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.STATUS" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.CONFIRMATION_STATUS" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.COST" | translate }}</th>
+              <th>{{ "SERVICE_REQUESTS.ACTIONS" | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let request of filteredRequests; let i = index"
+              [class.even]="i % 2 === 0"
+            >
+              <td>
+                <span class="request-id">#{{ request.requestId }}</span>
+              </td>
+              <td>
+                <div class="customer-info">
+                  <span class="customer-name">{{
+                    request.customer?.name ||
+                      ("SERVICE_REQUESTS.UNKNOWN" | translate)
+                  }}</span>
+                </div>
+              </td>
+              <td>
+                {{ formatPhoneNumber(request.customer?.phone) }}
+              </td>
+              <td>
+                <div class="devices-info">
+                  <div class="primary-device" *ngIf="getDeviceCount(request) > 0">
+                    <span class="device-type">
+                      {{ getDeviceTypeTranslationKey(getPrimaryDevice(request).deviceType) | translate }}
+                      <span *ngIf="!isKnownDeviceType(getPrimaryDevice(request).deviceType)" class="original-device-type">
+                        ({{ getPrimaryDevice(request).deviceType || ("SERVICE_REQUESTS.UNKNOWN" | translate) }})
+                      </span>
+                    </span>
+                    <span class="device-model" *ngIf="getPrimaryDevice(request).model">
+                      - {{ getPrimaryDevice(request).model }}
+                    </span>
+                  </div>
+                  <div class="device-count" *ngIf="getDeviceCount(request) > 1">
+                    <span class="count-badge">
+                      +{{ getDeviceCount(request) - 1 }} {{ "SERVICE_REQUESTS.MORE_DEVICES" | translate }}
+                    </span>
+                  </div>
+                  <div class="no-devices" *ngIf="getDeviceCount(request) === 0">
+                    <span class="no-device-text">{{ "SERVICE_REQUESTS.NO_DEVICES" | translate }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ formatDate(request.requestDate) }}</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [class.pending]="request.status === 'قيد الانتظار'"
+                  [class.in-progress]="request.status === 'قيد التصليح'"
+                  [class.completed]="request.status === 'مكتمل'"
+                  [class.cancelled]="request.status === 'ملغى'"
+                >
+                  {{ getStatusTranslationKey(request.status) | translate }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="confirmation-status-badge"
+                  [class.pending]="
+                    request.customerConfirmationStatus === 'قيد الانتظار'
+                  "
+                  [class.confirmed]="
+                    request.customerConfirmationStatus === 'تم التأكيد'
+                  "
+                  [class.rejected]="
+                    request.customerConfirmationStatus === 'تم الرفض'
+                  "
+                >
+                  {{ getConfirmationStatusTranslationKey(request.customerConfirmationStatus) | translate }}
+                </span>
+              </td>
+              <td>
+                <strong>{{
+                  request.totalCost | currency : "SAR " : "symbol" : "1.2-2"
+                }}</strong>
+                <div class="cost-breakdown" *ngIf="getTotalMaintenanceCost(request) !== request.totalCost">
+                  <small class="maintenance-cost">
+                    {{ "SERVICE_REQUESTS.MAINTENANCE" | translate }}: 
+                    {{ getTotalMaintenanceCost(request) | currency : "SAR " : "symbol" : "1.2-2" }}
+                  </small>
+                </div>
+              </td>
+              <td class="actions">
+                <button
+                  class="btn-action btn-view"
+                  (click)="viewRequest(request.requestId)"
+                  title="{{ 'SERVICE_REQUESTS.VIEW_DETAILS' | translate }}"
+                >
+                  <fa-icon [icon]="faEye"></fa-icon>
+                </button>
+                <button
+                  class="btn-action btn-edit"
+                  (click)="editRequest(request.requestId)"
+                  title="{{ 'SERVICE_REQUESTS.EDIT_REQUEST' | translate }}"
+                >
+                  <fa-icon [icon]="faEdit"></fa-icon>
+                </button>
+                <button
+                  class="btn-action btn-delete"
+                  (click)="deleteRequest(request.requestId)"
+                  title="{{ 'SERVICE_REQUESTS.DELETE_REQUEST' | translate }}"
+                >
+                  <fa-icon [icon]="faTrash"></fa-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
