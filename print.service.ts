@@ -63,6 +63,15 @@ export class PrintService {
 
     return `
       <div class="customer-card">
+        <div class="document-header">
+          <div class="header-logo">
+            <img src="../../assets/images/logo.png" alt="شعار الشركة" />
+          </div>
+          <div class="header-text">
+            <h1>مؤسسة منصور علي الدوسري التجارية</h1>
+            <p>لإصلاح وصيانة وتجديد وتركيب جميع أجهزة التبريد والتكييف وبيع قطع الغيار</p>
+          </div>
+        </div>
         <div class="card-header">
           <h2>بطاقة العميل</h2>
           <div class="customer-id">#${serviceRequest.customerId}</div>
@@ -119,8 +128,17 @@ export class PrintService {
 
     return `
       <div class="device-sticker">
+        <div class="document-header">
+          <div class="header-logo">
+            <img src="../../assets/images/logo.png" alt="شعار الشركة" />
+          </div>
+          <div class="header-text">
+            <h1>مؤسسة منصور علي الدوسري التجارية</h1>
+            <p>لإصلاح وصيانة وتجديد وتركيب جميع أجهزة التبريد والتكييف وبيع قطع الغيار</p>
+          </div>
+        </div>
         <div class="sticker-header">
-          <div class="logo">مركز الصيانة</div>
+          <div class="sticker-title">ملصق الجهاز</div>
           <div class="request-id">#${serviceRequest.requestId}</div>
         </div>
         <div class="sticker-body">
@@ -291,10 +309,18 @@ export class PrintService {
 
     return `
       <div class="request-summary">
+        <div class="document-header">
+          <div class="header-logo">
+            <img src="../../assets/images/logo.png" alt="شعار الشركة" />
+          </div>
+          <div class="header-text">
+            <h1>مؤسسة منصور علي الدوسري التجارية</h1>
+            <p>لإصلاح وصيانة وتجديد وتركيب جميع أجهزة التبريد والتكييف وبيع قطع الغيار</p>
+          </div>
+        </div>
         <div class="header">
-          <div class="logo">مركز الصيانة</div>
           <div class="title">
-            <h1>تقرير طلب صيانة</h1>
+            <h2>تقرير طلب صيانة</h2>
             <div class="request-id">رقم الطلب: #${serviceRequest.requestId}</div>
           </div>
           <div class="status-badge ${this.getStatusClass(serviceRequest.status)}">${serviceRequest.status ?? 'غير محدد'}</div>
@@ -887,7 +913,7 @@ export class PrintService {
           printSettings = `
             @page {
               size: A5 portrait;
-              margin: 10mm;
+              margin: 5mm;
             }
             @media print {
               html, body {
@@ -903,24 +929,23 @@ export class PrintService {
                 page-break-after: avoid;
                 page-break-before: avoid;
               }
-              /* Hide browser headers and footers */
-              @page { margin: 10mm; }
+              @page { margin: 5mm; }
               body { margin: 0; }
             }
           `;
           break;
           
         case 'device-sticker':
-          // Device sticker should be printed in A6 portrait format
+          // Device sticker should be printed with 100mm width
           printSettings = `
             @page {
-              size: A6 portrait;
-              margin: 5mm;
+              size: 100mm 150mm;
+              margin: 2mm;
             }
             @media print {
               html, body {
-                width: 105mm;
-                height: 148mm;
+                width: 100mm;
+                height: 150mm;
                 margin: 0;
                 padding: 0;
               }
@@ -931,8 +956,7 @@ export class PrintService {
                 page-break-after: avoid;
                 page-break-before: avoid;
               }
-              /* Hide browser headers and footers */
-              @page { margin: 5mm; }
+              @page { margin: 2mm; }
               body { margin: 0; }
             }
           `;
@@ -943,7 +967,7 @@ export class PrintService {
           printSettings = `
             @page {
               size: A5 portrait;
-              margin: 10mm;
+              margin: 5mm;
             }
             @media print {
               html, body {
@@ -964,8 +988,7 @@ export class PrintService {
               .parts-section {
                 page-break-before: always;
               }
-              /* Hide browser headers and footers */
-              @page { margin: 10mm; }
+              @page { margin: 5mm; }
             }
           `;
           break;
@@ -1032,10 +1055,10 @@ export class PrintService {
       body {
         direction: rtl;
         background-color: #f9fafb;
-        padding: 20px;
+        padding: 5mm;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100vh;
       }
       
@@ -1043,7 +1066,7 @@ export class PrintService {
         width: 100%;
         max-width: 148mm;
         background: white;
-        border-radius: 10px;
+        border-radius: 3mm;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         display: flex;
@@ -1051,66 +1074,113 @@ export class PrintService {
         page-break-inside: avoid;
       }
       
-      .card-header {
-        background: linear-gradient(to left, #4f46e5, #6366f1);
+      .document-header {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
         color: white;
-        padding: 15px 20px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 2px solid #1d4ed8;
+      }
+      
+      .header-logo img {
+        width: 35px;
+        height: 35px;
+        object-fit: contain;
+        border-radius: 50%;
+        background: white;
+        padding: 2px;
+      }
+      
+      .header-text {
+        flex: 1;
+        text-align: center;
+      }
+      
+      .header-text h1 {
+        font-size: 12px;
+        font-weight: 700;
+        margin: 0 0 2px 0;
+        line-height: 1.2;
+      }
+      
+      .header-text p {
+        font-size: 8px;
+        opacity: 0.9;
+        margin: 0;
+        line-height: 1.1;
+      }
+      
+      .card-header {
+        background: #f8fafc;
+        color: #1e40af;
+        padding: 8px 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid #e2e8f0;
       }
       
       .card-header h2 {
-        font-size: 20px;
+        font-size: 14px;
         font-weight: 700;
         margin: 0;
       }
       
       .customer-id {
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 12px;
+        font-weight: 600;
+        background: #1e40af;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
       }
       
       .card-body {
-        padding: 20px;
+        padding: 10px;
         flex-grow: 1;
       }
       
       .customer-info {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 6px;
+        margin-bottom: 12px;
       }
       
       .request-details {
-        margin-top: 20px;
+        margin-top: 12px;
         border-top: 1px solid #e5e7eb;
-        padding-top: 15px;
+        padding-top: 8px;
       }
       
       .request-details h3 {
-        font-size: 16px;
-        margin-bottom: 12px;
-        color: #4f46e5;
+        font-size: 12px;
+        margin-bottom: 8px;
+        color: #1e40af;
+        font-weight: 600;
       }
       
       .info-group {
         display: flex;
-        align-items: center;
-        margin-bottom: 8px;
+        align-items: flex-start;
+        margin-bottom: 4px;
+        gap: 4px;
       }
       
       .info-group label {
-        font-weight: 500;
-        color: #6b7280;
-        min-width: 100px;
-        font-size: 14px;
+        font-weight: 600;
+        color: #4b5563;
+        min-width: 65px;
+        font-size: 10px;
+        flex-shrink: 0;
       }
       
       .info-group span {
-        font-size: 14px;
+        font-size: 10px;
         color: #1f2937;
+        line-height: 1.3;
       }
       
       .info-group span.pending {
@@ -1134,18 +1204,18 @@ export class PrintService {
       }
       
       .devices-summary {
-        margin-top: 12px;
-        padding: 12px;
+        margin-top: 8px;
+        padding: 6px;
         background: #f8fafc;
-        border-radius: 6px;
+        border-radius: 3px;
         border: 1px solid #e2e8f0;
       }
       
       .device-summary-item {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        padding: 8px 0;
+        gap: 2px;
+        padding: 4px 0;
         border-bottom: 1px solid #e2e8f0;
       }
       
@@ -1155,29 +1225,31 @@ export class PrintService {
       
       .device-number {
         font-weight: 600;
-        color: #4f46e5;
-        font-size: 13px;
+        color: #1e40af;
+        font-size: 9px;
       }
       
       .device-details {
         color: #1f2937;
-        font-size: 12px;
+        font-size: 8px;
       }
       
       .delivery-date {
         color: #6b7280;
-        font-size: 11px;
+        font-size: 8px;
         font-style: italic;
       }
+      
+      .card-footer {
         background-color: #f3f4f6;
-        padding: 15px 20px;
+        padding: 8px 10px;
         border-top: 1px solid #e5e7eb;
       }
       
       .request-info {
         display: flex;
         justify-content: space-between;
-        font-size: 14px;
+        font-size: 9px;
         color: #4b5563;
       }
       
@@ -1216,114 +1288,166 @@ export class PrintService {
       body {
         direction: rtl;
         background-color: #f9fafb;
-        padding: 20px;
+        padding: 2mm;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100vh;
       }
       
       .device-sticker {
-        width: 100%;
-        max-width: 105mm;
+        width: 100mm;
         background: white;
-        border-radius: 5px;
+        border-radius: 2mm;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
         page-break-inside: avoid;
       }
       
-      .sticker-header {
-        background: linear-gradient(to left, #4f46e5, #6366f1);
+      .document-header {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
         color: white;
-        padding: 10px 15px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid #1d4ed8;
+      }
+      
+      .header-logo img {
+        width: 25px;
+        height: 25px;
+        object-fit: contain;
+        border-radius: 50%;
+        background: white;
+        padding: 1px;
+      }
+      
+      .header-text {
+        flex: 1;
+        text-align: center;
+      }
+      
+      .header-text h1 {
+        font-size: 8px;
+        font-weight: 700;
+        margin: 0 0 1px 0;
+        line-height: 1.1;
+      }
+      
+      .header-text p {
+        font-size: 6px;
+        opacity: 0.9;
+        margin: 0;
+        line-height: 1;
+      }
+      
+      .sticker-header {
+        background: #f8fafc;
+        color: #1e40af;
+        padding: 4px 6px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid #e2e8f0;
       }
       
-      .logo {
-        font-size: 16px;
+      .sticker-title {
+        font-size: 10px;
         font-weight: 700;
       }
       
       .request-id {
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 10px;
+        font-weight: 600;
+        background: #1e40af;
+        color: white;
+        padding: 1px 4px;
+        border-radius: 2px;
       }
       
       .sticker-body {
-        padding: 15px;
+        padding: 6px;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr;
+        gap: 6px;
       }
       
       .device-info, .customer-info {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 3px;
       }
       
       .info-group {
         display: flex;
-        align-items: center;
-        gap: 5px;
+        align-items: flex-start;
+        gap: 3px;
       }
       
       .info-group label {
-        font-weight: 500;
-        color: #6b7280;
-        font-size: 12px;
+        font-weight: 600;
+        color: #4b5563;
+        font-size: 8px;
+        min-width: 35px;
+        flex-shrink: 0;
       }
       
       .info-group span {
-        font-size: 12px;
+        font-size: 8px;
         color: #1f2937;
-        font-weight: 600;
+        font-weight: 500;
+        line-height: 1.2;
       }
       
       .sticker-footer {
         background-color: #f3f4f6;
-        padding: 10px 15px;
+        padding: 4px 6px;
         border-top: 1px solid #e5e7eb;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
       }
       
       .date-info {
-        font-size: 10px;
+        font-size: 7px;
         color: #4b5563;
+        line-height: 1.2;
       }
       
       .barcode {
         font-family: 'Courier New', monospace;
-        font-size: 14px;
-        letter-spacing: 2px;
+        font-size: 10px;
+        letter-spacing: 1px;
         font-weight: bold;
+        text-align: center;
+        background: white;
+        padding: 2px;
+        border: 1px solid #000;
       }
       
       .signature-section {
-        padding: 15px;
+        padding: 6px;
         border-top: 1px solid #e5e7eb;
       }
       
       .signature-box {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 8px;
       }
       
       .signature-line {
         border-top: 1px solid #9ca3af;
-        padding-top: 10px;
+        padding-top: 4px;
         text-align: center;
         color: #4b5563;
-        font-size: 14px;
-        width: 80%;
+        font-size: 8px;
+        width: 70%;
       }
       
       .error-message {
@@ -1361,51 +1485,86 @@ export class PrintService {
       body {
         direction: rtl;
         background-color: #f9fafb;
-        padding: 20px;
+        padding: 5mm;
       }
       
       .request-summary {
         max-width: 148mm;
         margin: 0 auto;
         background: white;
-        border-radius: 10px;
+        border-radius: 3mm;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
       
-      .header {
-        background: linear-gradient(to left, #4f46e5, #6366f1);
+      .document-header {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
         color: white;
-        padding: 15px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 2px solid #1d4ed8;
+      }
+      
+      .header-logo img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border-radius: 50%;
+        background: white;
+        padding: 2px;
+      }
+      
+      .header-text {
+        flex: 1;
+        text-align: center;
+      }
+      
+      .header-text h1 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 2px 0;
+        line-height: 1.2;
+      }
+      
+      .header-text p {
+        font-size: 9px;
+        opacity: 0.9;
+        margin: 0;
+        line-height: 1.1;
+      }
+      
+      .header {
+        background: #f8fafc;
+        color: #1e40af;
+        padding: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-      }
-      
-      .logo {
-        font-size: 18px;
-        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0;
       }
       
       .title {
         text-align: center;
       }
       
-      .title h1 {
-        font-size: 18px;
-        margin-bottom: 5px;
+      .title h2 {
+        font-size: 16px;
+        margin-bottom: 3px;
+        font-weight: 700;
       }
       
       .request-id {
-        font-size: 14px;
-        opacity: 0.9;
+        font-size: 12px;
+        opacity: 0.8;
       }
       
       .status-badge {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 600;
-        padding: 5px 12px;
-        border-radius: 20px;
+        padding: 3px 8px;
+        border-radius: 10px;
         background: white;
         color: black;
       }
@@ -1431,7 +1590,7 @@ export class PrintService {
       }
       
       .section {
-        padding: 15px;
+        padding: 8px;
         border-bottom: 1px solid #e5e7eb;
       }
       
@@ -1440,22 +1599,23 @@ export class PrintService {
       }
       
       .section h3 {
-        font-size: 16px;
+        font-size: 12px;
         color: #1f2937;
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 3px;
+        font-weight: 600;
       }
       
       .info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 6px;
       }
       
       .info-group {
-        margin-bottom: 8px;
+        margin-bottom: 4px;
       }
       
       .info-group.full-width {
@@ -1465,77 +1625,81 @@ export class PrintService {
       .info-group label {
         display: block;
         color: #6b7280;
-        font-size: 12px;
-        margin-bottom: 3px;
+        font-size: 9px;
+        margin-bottom: 2px;
+        font-weight: 500;
       }
       
       .info-group span {
         color: #1f2937;
         font-weight: 500;
-        font-size: 12px;
+        font-size: 9px;
+        line-height: 1.2;
       }
       
       .info-group span.total-cost {
         color: #047857;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 11px;
       }
       
       .cost-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 6px;
         background: #f9fafb;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 6px;
+        border-radius: 4px;
       }
       
       .total-cost-group {
         grid-column: 1 / -1;
         background: #f0f9ff;
-        padding: 10px;
-        border-radius: 6px;
+        padding: 6px;
+        border-radius: 3px;
         border: 1px solid #bae6fd;
       }
       
       .devices-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 8px;
       }
       
       .device-item {
         background: #f9fafb;
-        padding: 12px;
-        border-radius: 8px;
+        padding: 6px;
+        border-radius: 4px;
         border: 1px solid #e5e7eb;
       }
       
       .device-item h4 {
-        color: #4f46e5;
-        margin-bottom: 10px;
-        font-size: 14px;
+        color: #1e40af;
+        margin-bottom: 6px;
+        font-size: 10px;
+        font-weight: 600;
       }
       
       .notes, .missing-parts {
         background: #f9fafb;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 6px;
+        border-radius: 4px;
         color: #4b5563;
-        min-height: 60px;
+        min-height: 30px;
         white-space: pre-line;
-        font-size: 12px;
+        font-size: 9px;
+        line-height: 1.3;
       }
       
       .parts-table, .sms-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 8px;
       }
       
       .parts-table th, .parts-table td,
       .sms-table th, .sms-table td {
-        padding: 8px;
+        padding: 4px;
         text-align: right;
         border-bottom: 1px solid #e5e7eb;
       }
@@ -1544,6 +1708,7 @@ export class PrintService {
         background: #f3f4f6;
         color: #374151;
         font-weight: 600;
+        font-size: 8px;
       }
       
       .parts-table tbody tr:nth-child(even),
@@ -1565,9 +1730,10 @@ export class PrintService {
       }
       
       .sms-status {
-        padding: 2px 6px;
-        border-radius: 4px;
+        padding: 1px 3px;
+        border-radius: 2px;
         font-weight: 600;
+        font-size: 7px;
       }
       
       .sms-status.delivered {
@@ -1587,14 +1753,14 @@ export class PrintService {
       
       .footer {
         background: #f3f4f6;
-        padding: 15px;
+        padding: 8px;
         border-top: 1px solid #e5e7eb;
       }
       
       .signature-section {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 15px;
+        margin-bottom: 8px;
       }
       
       .signature-box {
@@ -1603,16 +1769,16 @@ export class PrintService {
       
       .signature-line {
         border-top: 1px solid #9ca3af;
-        padding-top: 8px;
+        padding-top: 4px;
         text-align: center;
         color: #4b5563;
-        font-size: 12px;
+        font-size: 8px;
       }
       
       .print-date {
         text-align: center;
         color: #6b7280;
-        font-size: 10px;
+        font-size: 7px;
       }
       
       .error-message {
